@@ -2,7 +2,6 @@ name: Run eBay Scraper
 
 on:
   schedule:
-    - cron: '10 7 * * *'   # 06:00 UTC (08:00 středoevropského času)
     - cron: '0 6 * * *'   # 06:00 UTC (08:00 středoevropského času)
     - cron: '0 18 * * *'  # 18:00 UTC (20:00 SEČ)
   workflow_dispatch:     # manuální spuštění z GitHubu
