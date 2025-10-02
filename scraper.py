@@ -17,7 +17,7 @@ if not creds_json:
 with open("credentials.json", "w") as f:
     f.write(creds_json)
 
-print("✅ credentials.json vytvořen.")
+print("✅ credentials.json vytvořen.", flush=True)
 
 try:
     json.loads(creds_json)
@@ -82,27 +82,27 @@ def get_existing_links(sheet):
 
 # 📄 Scrapování jednoho keywordu
 def scrape_keyword(base_url, keyword, spreadsheet, max_empty_pages=2):
-    print(f"\n🚀 Scrapování keywordu: {keyword}")
+    print(f"\n🚀 Scrapování keywordu: {keyword}", flush=True)
     url = update_url_keyword(base_url, keyword.replace(" ", "+"))
     page_number = 1
-    print(f'🌐 URL: {url}')
+    print(f'🌐 URL: {url}', flush=True)
 
     list_name = sanitize_keyword(keyword)
     try:
         sheet = spreadsheet.worksheet(list_name)
-        print(f"📄 List '{list_name}' existuje – zapisujeme do něj")
+        print(f"📄 List '{list_name}' existuje – zapisujeme do něj", flush=True)
     except gspread.exceptions.WorksheetNotFound:
         sheet = spreadsheet.add_worksheet(title=list_name, rows="1000", cols="10")
-        print(f"📄 List '{list_name}' vytvořen")
+        print(f"📄 List '{list_name}' vytvořen", flush=True)
         sheet.append_row(["Keyword", "Title", "Price", "Link", "End date"])
 
     existing_links = get_existing_links(sheet)
-    print(f"🔎 Existující linky: {len(existing_links)}")
+    print(f"🔎 Existující linky: {len(existing_links)}", flush=True)
 
     empty_page_count = 0
 
     while True:
-        print(f'\n🔎 Stránka {page_number} pro "{keyword}"')
+        print(f'\n🔎 Stránka {page_number} pro "{keyword}"', flush=True)
         params = {'_pgn': page_number}
 
         try:
@@ -114,7 +114,7 @@ def scrape_keyword(base_url, keyword, spreadsheet, max_empty_pages=2):
             break
 
         items = soup.find_all('div', class_='su-card-container__content')
-        print(f"📦 Nalezeno {len(items)} položek")
+        print(f"📦 Nalezeno {len(items)} položek", flush=True)
 
         page_items = []
 
@@ -132,7 +132,7 @@ def scrape_keyword(base_url, keyword, spreadsheet, max_empty_pages=2):
                 end_tag = item.find('span', class_='su-styled-text positive default')
                 end_date = end_tag.text.strip() if end_tag else 'N/A'
 
-                print(f"🔗 Link kandidát: {link}")
+                print(f"🔗 Link kandidát: {link}", flush=True)
 
                 if link not in existing_links and link != 'N/A':
                     row = [
@@ -145,28 +145,28 @@ def scrape_keyword(base_url, keyword, spreadsheet, max_empty_pages=2):
                     page_items.append(row)
                     existing_links.add(link)
             except Exception as e:
-                print(f"⚠️ Chyba v položce: {e}")
+                print(f"⚠️ Chyba v položce: {e}", flush=True)
                 continue
 
         if page_items:
             try:
                 sheet.append_rows(page_items, value_input_option='RAW')
-                print(f"✅ Zapsáno {len(page_items)} nových řádků do listu '{list_name}'")
+                print(f"✅ Zapsáno {len(page_items)} nových řádků do listu '{list_name}'", flush=True)
             except Exception as e:
                 print(f"❌ Chyba při zápisu do Google Sheets: {e}")
             empty_page_count = 0
         else:
             empty_page_count += 1
-            print(f"📭 Stránka bez nových položek ({empty_page_count}/{max_empty_pages})")
+            print(f"📭 Stránka bez nových položek ({empty_page_count}/{max_empty_pages})", flush=True)
 
         # 🛑 Ukončení po X prázdných stránkách
         if empty_page_count >= max_empty_pages:
-            print(f"⛔ {empty_page_count} po sobě prázdných stránek – končíme keyword '{keyword}'")
+            print(f"⛔ {empty_page_count} po sobě prázdných stránek – končíme keyword '{keyword}'", flush=True)
             break
 
         next_button = soup.find('a', class_='pagination__next icon-link')
         if not next_button:
-            print(f"🏁 Konec pro keyword '{keyword}' – další stránka neexistuje.")
+            print(f"🏁 Konec pro keyword '{keyword}' – další stránka neexistuje.", flush=True)
             break
 
         page_number += 1
@@ -179,12 +179,12 @@ def run_scraper():
         spreadsheet = client.open("Ebay_scrape_vysledky")
     except gspread.exceptions.SpreadsheetNotFound:
         spreadsheet = client.create("Ebay_scrape_vysledky")
-        print("🆕 Soubor 'Ebay_scrape_vysledky' byl vytvořen.")
+        print("🆕 Soubor 'Ebay_scrape_vysledky' byl vytvořen.", flush=True)
 
     for keyword in keywords:
         scrape_keyword(BASE_URL, keyword, spreadsheet, max_empty_pages=2)
         wait = random.randint(60, 180)
-        print(f"⏳ Pauza {wait} sekund před dalším keywordem...")
+        print(f"⏳ Pauza {wait} sekund před dalším keywordem...", flush=True)
         time.sleep(wait)
 
 # 🌐 BASE URL bez _nkw
@@ -201,9 +201,3 @@ HEADERS = {
 if __name__ == "__main__":
 
     run_scraper()
-
-
-
-
-
-
