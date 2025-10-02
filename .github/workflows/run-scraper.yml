@@ -23,7 +23,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: 🔐 Vytvořit credentials.json z tajného proměnné
-        run: echo "${{ secrets.GSHEETS_CREDS }}" > credentials.json
+        run: echo "${{ secrets.GSHEETS_CREDS_B64 }}" | base64 --decode > credentials.json
 
       - name: 🚀 Spustit scraper
         run: python scraper.py
