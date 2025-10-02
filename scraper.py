@@ -26,7 +26,8 @@ except json.JSONDecodeError as e:
     print("❌ JSON decode error:", e)
     print("❌ Received string:", creds_json)
     raise
-    
+
+print("🟢 Spuštěn run_scraper()", flush=True)
 
 # 📌 Klíčová slova
 keywords = [
@@ -200,6 +201,7 @@ HEADERS = {
 if __name__ == "__main__":
 
     run_scraper()
+
 
 
 
