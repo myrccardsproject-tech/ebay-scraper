@@ -1,3 +1,13 @@
+creds_json = os.environ.get('GSHEETS_CREDS')
+
+try:
+    json.loads(creds_json)
+    print("✅ JSON loaded successfully")
+except json.JSONDecodeError as e:
+    print("❌ JSON decode error:", e)
+    print("❌ Received string:", creds_json)
+    raise
+    
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -180,5 +190,6 @@ HEADERS = {
 if __name__ == "__main__":
 
     run_scraper()
+
 
 
