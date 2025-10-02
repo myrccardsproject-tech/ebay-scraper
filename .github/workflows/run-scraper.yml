@@ -2,13 +2,16 @@ name: Run eBay Scraper
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # 06:00 UTC (08:00 středoevropského času)
-    - cron: '0 18 * * *'  # 18:00 UTC (20:00 SEČ)
-  workflow_dispatch:     # manuální spuštění z GitHubu
+    - cron: '0 6 * * *'   # 06:00 UTC
+    - cron: '0 18 * * *'  # 18:00 UTC
+  workflow_dispatch:
 
 jobs:
   run:
     runs-on: ubuntu-latest
+
+    env:                           # <<< TADY nastavíme environment variable
+      GSHEETS_CREDS: ${{ secrets.GSHEETS_CREDS }}
 
     steps:
       - name: 🛒 Checkout repo
@@ -21,9 +24,6 @@ jobs:
 
       - name: 📦 Install dependencies
         run: pip install -r requirements.txt
-
-      - name: 🔐 Vytvořit credentials.json z tajného proměnné
-        run: echo "${{ secrets.GSHEETS_CREDS_B64 }}" | base64 --decode > credentials.json
 
       - name: 🚀 Spustit scraper
         run: python scraper.py
