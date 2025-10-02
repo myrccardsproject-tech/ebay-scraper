@@ -10,6 +10,15 @@ import json
 
 creds_json = os.environ.get('GSHEETS_CREDS')
 
+if not creds_json:
+    raise EnvironmentError("❌ Proměnná prostředí 'GSHEETS_CREDS' nebyla načtena – zkontroluj Settings > Secrets > Actions.")
+
+# vytvořit credentials.json
+with open("credentials.json", "w") as f:
+    f.write(creds_json)
+
+print("✅ credentials.json vytvořen.")
+
 try:
     json.loads(creds_json)
     print("✅ JSON loaded successfully")
@@ -191,6 +200,7 @@ HEADERS = {
 if __name__ == "__main__":
 
     run_scraper()
+
 
 
 
