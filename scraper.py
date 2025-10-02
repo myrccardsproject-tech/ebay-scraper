@@ -5,6 +5,17 @@ import random
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from urllib.parse import urlencode, urlparse, parse_qs, urlunparse, ParseResult, quote_plus
+import os
+import json
+
+creds_json = os.environ.get('GSHEETS_CREDS')
+
+if not creds_json:
+    raise EnvironmentError("❌ Proměnná prostředí 'GSHEETS_CREDS' nebyla nastavena.")
+
+with open("credentials.json", "w") as f:
+    f.write(creds_json)
+    
 # 📌 Klíčová slova
 keywords = [
     'future watch auto',
@@ -175,4 +186,5 @@ HEADERS = {
 
 # ▶️ Spuštění
 if __name__ == "__main__":
+
     run_scraper()
