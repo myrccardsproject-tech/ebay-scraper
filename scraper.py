@@ -1,3 +1,13 @@
+import requests
+from bs4 import BeautifulSoup
+import time
+import random
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from urllib.parse import urlencode, urlparse, parse_qs, urlunparse, ParseResult, quote_plus
+import os
+import json
+
 creds_json = os.environ.get('GSHEETS_CREDS')
 
 try:
@@ -8,16 +18,7 @@ except json.JSONDecodeError as e:
     print("❌ Received string:", creds_json)
     raise
     
-import requests
-from bs4 import BeautifulSoup
-import time
-import random
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-from urllib.parse import urlencode, urlparse, parse_qs, urlunparse, ParseResult, quote_plus
-import os
-import json
-    
+
 # 📌 Klíčová slova
 keywords = [
     'future watch auto',
@@ -190,6 +191,7 @@ HEADERS = {
 if __name__ == "__main__":
 
     run_scraper()
+
 
 
 
