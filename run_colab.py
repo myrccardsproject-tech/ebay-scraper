@@ -7,31 +7,30 @@ from email.message import EmailMessage
 import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
+# Změna 1: Smazali jsme importy pro Service a ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 
-# --- Načtení všech potřebných dat z GitHub Secrets ---
+# --- Načtení všech potřebných dat z GitHub Secrets (zůstává stejné) ---
 COLAB_URL = os.environ.get('COLAB_URL')
+# ... (zbytek proměnných se nemění)
 COOKIES_JSON_STRING = os.environ.get('GOOGLE_COOKIES_JSON')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL')
 SENDER_APP_PASSWORD = os.environ.get('SENDER_APP_PASSWORD')
 RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL')
 
-# --- Funkce pro odeslání chybového emailu ---
+# --- Funkce pro odeslání chybového emailu (zůstává stejná) ---
 def send_email(subject, body):
+    # ... (kód funkce se nemění)
     if not all([SENDER_EMAIL, SENDER_APP_PASSWORD, RECIPIENT_EMAIL]):
         print("⚠️ Chybí proměnné pro odeslání emailu, hlášení se neodešle.")
         return
-
     msg = EmailMessage()
     msg['Subject'] = subject
     msg['From'] = SENDER_EMAIL
     msg['To'] = RECIPIENT_EMAIL
     msg.set_content(body)
-
     context = ssl.create_default_context()
     try:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
@@ -48,15 +47,18 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--window-size=1920,1080")
 
-service = Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service, options=options)
+# Změna 2: Smazali jsme řádky:
+# service = Service(ChromeDriverManager().install())
+# A upravili jsme následující řádek:
+driver = webdriver.Chrome(options=options)
 wait = WebDriverWait(driver, 30)
 
 print("✅ Proces spuštěn, prohlížeč nastaven.")
 
 try:
-    # --- Přihlášení pomocí cookies ---
+    # --- Přihlášení pomocí cookies (zůstává stejné) ---
     print("⏳ Načítám cookies pro přihlášení...")
+    # ... (zbytek skriptu je naprosto stejný)
     driver.get("https://google.com")
     cookies = json.loads(COOKIES_JSON_STRING)
     for cookie in cookies:
@@ -80,7 +82,7 @@ try:
     print("✅ Čekání dokončeno, skript pravděpodobně doběhl úspěšně.")
 
 except Exception as e:
-    # --- Odeslání chybového hlášení ---
+    # --- Odeslání chybového hlášení (zůstává stejné) ---
     print(f"❌ Vyskytla se kritická chyba: {e}")
     error_details = traceback.format_exc()
     error_body = f"Při běhu skriptu pro Colab notebook nastala chyba.\n\nURL: {COLAB_URL}\n\nDetaily chyby:\n{error_details}"
@@ -88,6 +90,6 @@ except Exception as e:
     raise e
 
 finally:
-    # --- Ukončení ---
+    # --- Ukončení (zůstává stejné) ---
     driver.quit()
     print("🏁 Proces dokončen.")
