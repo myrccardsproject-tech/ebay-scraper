@@ -21,18 +21,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # ZMĚNA ZDE: Místo Base64 stahujeme z Google Drive
+      # ZMĚNA ZDE: Používáme gdown pro spolehlivé stahování
       - name: Restore Chrome Profile from Google Drive
         run: |
-          echo "Stahuji profil z Google Drive..."
-          wget -O profile.zip "${{ secrets.GDRIVE_DOWNLOAD_URL }}"
+          echo "Stahuji profil pomocí gdown..."
+          gdown --id "${{ secrets.GDRIVE_FILE_ID }}" -O profile.zip
           echo "Rozbaluji profil..."
           unzip -o profile.zip -d .
           echo "Profil obnoven."
       
       - name: Run the Colab automation script
         env:
-          # Nyní stačí předat jen tyto secrets
           COLAB_URL: ${{ secrets.COLAB_URL }}
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           SENDER_APP_PASSWORD: ${{ secrets.SENDER_APP_PASSWORD }}
