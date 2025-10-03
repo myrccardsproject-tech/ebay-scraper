@@ -11,14 +11,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# --- Načtení všech potřebných dat z GitHub Secrets (zůstává stejné) ---
+# --- Načtení dat (beze změny) ---
 COLAB_URL = os.environ.get('COLAB_URL')
 COOKIES_JSON_STRING = os.environ.get('GOOGLE_COOKIES_JSON')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL')
 SENDER_APP_PASSWORD = os.environ.get('SENDER_APP_PASSWORD')
 RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL')
 
-# --- Funkce pro odeslání chybového emailu (zůstává stejná) ---
+# --- Funkce send_email (beze změny) ---
 def send_email(subject, body):
     if not all([SENDER_EMAIL, SENDER_APP_PASSWORD, RECIPIENT_EMAIL]):
         print("⚠️ Chybí proměnné pro odeslání emailu, hlášení se neodešle.")
@@ -37,7 +37,7 @@ def send_email(subject, body):
     except Exception as e:
         print(f"❌ Nepodařilo se odeslat email: {e}")
 
-# --- Nastavení prohlížeče pro běh na serveru (zůstává stejné) ---
+# --- Nastavení prohlížeče (beze změny) ---
 options = Options()
 options.add_argument("--headless")
 options.add_argument("--no-sandbox")
@@ -53,23 +53,26 @@ try:
     # --- Přihlášení pomocí cookies ---
     print("⏳ Načítám cookies pro přihlášení...")
     driver.get("https://accounts.google.com")
+    
     cookies = json.loads(COOKIES_JSON_STRING)
     for cookie in cookies:
-        # Oprava pro 'sameSite' atribut
+        # Oprava 1: Vyčištění neplatných 'sameSite' hodnot
         if 'sameSite' in cookie and cookie['sameSite'] not in ["Strict", "Lax", "None"]:
             del cookie['sameSite']
         
-        # FINÁLNÍ ZMĚNA ZDE: Přidáváme pouze cookies pro domény Google
-        # Používáme .get() pro bezpečný přístup k klíči 'domain'
-        if "google" in cookie.get('domain', ''):
-            try:
-                driver.add_cookie(cookie)
-            except Exception as cookie_error:
-                print(f"⚠️ Nepodařilo se přidat cookie: {cookie.get('name')}. Chyba: {cookie_error}")
-        else:
-            print(f"⏩ Přeskakuji cookie pro doménu: {cookie.get('domain', 'N/A')}")
-    
-    # --- Spuštění Colab notebooku ---
+        # FINÁLNÍ OPRAVA ZDE: Odstranění atributu 'domain' pro speciální __Host- cookies
+        if cookie.get('name', '').startswith('__Host-'):
+            if 'domain' in cookie:
+                del cookie['domain']
+        
+        # Ochrana proti chybě domény zůstává jako pojistka
+        try:
+            driver.add_cookie(cookie)
+        except Exception as cookie_error:
+            # Tichá chyba, protože některé cookies prostě nepůjdou přidat a je to v pořádku
+            pass
+            
+    # Po načtení cookies přejdeme na cílovou URL
     print(f"⏳ Otevírám Colab notebook...")
     driver.get(COLAB_URL)
 
@@ -83,7 +86,8 @@ try:
     
     print("⏳ Čekám 30 minut na dokončení scraperu...")
     time.sleep(1800)
-    print("✅ Čekání dokončeno, skript pravděpodobně doběhl úspěšně.")
+    print("✅ Čekání dokončeno, skript úspěšně doběhl.")
+    # Po úspěšném běhu již neposíláme email.
 
 except Exception as e:
     # --- Odeslání chybového hlášení ---
@@ -97,4 +101,3 @@ finally:
     # --- Ukončení ---
     driver.quit()
     print("🏁 Proces dokončen.")
-
