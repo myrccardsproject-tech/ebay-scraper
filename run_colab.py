@@ -4,7 +4,6 @@ import smtplib
 import ssl
 from email.message import EmailMessage
 import traceback
-# ZMĚNA 1: Importujeme standardní selenium a novou knihovnu
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -36,16 +35,16 @@ def send_email(subject, body):
     except Exception as e:
         print(f"❌ Nepodařilo se odeslat email: {e}")
 
-# --- Nastavení prohlížeče s profilem ---
-options = webdriver.ChromeOptions() # Použijeme ChromeOptions místo generických Options
+# --- Nastavení prohlížeče s profilem (beze změny) ---
+options = webdriver.ChromeOptions()
 options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--window-size=1920,1080")
 options.add_argument("--user-data-dir=chrome-profile/Default")
 
-# ZMĚNA 2: Spustíme prohlížeč přes undetected_chromedriver
-driver = uc.Chrome(options=options, use_subprocess=True)
+# ZMĚNA ZDE: Přidáme parametr version_main=140, abychom vynutili správnou verzi ovladače
+driver = uc.Chrome(options=options, use_subprocess=True, version_main=140)
 wait = WebDriverWait(driver, 60)
 
 print("✅ Proces spuštěn ve stealth režimu, profil prohlížeče načten.")
