@@ -55,11 +55,19 @@ try:
     driver.get("https://google.com")
     cookies = json.loads(COOKIES_JSON_STRING)
     for cookie in cookies:
-        # ZMĚNA ZDE: Přidali jsme kontrolu pro 'sameSite' atribut
-        # Pokud má cookie neplatnou hodnotu 'sameSite', jednoduše tento atribut odstraníme.
+        # Oprava pro 'sameSite' atribut
         if 'sameSite' in cookie and cookie['sameSite'] not in ["Strict", "Lax", "None"]:
             del cookie['sameSite']
-        driver.add_cookie(cookie)
+        
+        # FINÁLNÍ ZMĚNA ZDE: Přidáváme pouze cookies pro domény Google
+        # Používáme .get() pro bezpečný přístup k klíči 'domain'
+        if "google" in cookie.get('domain', ''):
+            try:
+                driver.add_cookie(cookie)
+            except Exception as cookie_error:
+                print(f"⚠️ Nepodařilo se přidat cookie: {cookie.get('name')}. Chyba: {cookie_error}")
+        else:
+            print(f"⏩ Přeskakuji cookie pro doménu: {cookie.get('domain', 'N/A')}")
     
     # --- Spuštění Colab notebooku ---
     print(f"⏳ Otevírám Colab notebook...")
