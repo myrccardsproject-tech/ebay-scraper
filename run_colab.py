@@ -52,7 +52,7 @@ print("✅ Proces spuštěn, prohlížeč nastaven.")
 try:
     # --- Přihlášení pomocí cookies ---
     print("⏳ Načítám cookies pro přihlášení...")
-    driver.get("https://google.com")
+    driver.get("https://accounts.google.com")
     cookies = json.loads(COOKIES_JSON_STRING)
     for cookie in cookies:
         # Oprava pro 'sameSite' atribut
@@ -97,3 +97,4 @@ finally:
     # --- Ukončení ---
     driver.quit()
     print("🏁 Proces dokončen.")
+
