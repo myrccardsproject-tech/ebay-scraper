@@ -7,14 +7,12 @@ from email.message import EmailMessage
 import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-# Změna 1: Smazali jsme importy pro Service a ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 # --- Načtení všech potřebných dat z GitHub Secrets (zůstává stejné) ---
 COLAB_URL = os.environ.get('COLAB_URL')
-# ... (zbytek proměnných se nemění)
 COOKIES_JSON_STRING = os.environ.get('GOOGLE_COOKIES_JSON')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL')
 SENDER_APP_PASSWORD = os.environ.get('SENDER_APP_PASSWORD')
@@ -22,7 +20,6 @@ RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL')
 
 # --- Funkce pro odeslání chybového emailu (zůstává stejná) ---
 def send_email(subject, body):
-    # ... (kód funkce se nemění)
     if not all([SENDER_EMAIL, SENDER_APP_PASSWORD, RECIPIENT_EMAIL]):
         print("⚠️ Chybí proměnné pro odeslání emailu, hlášení se neodešle.")
         return
@@ -40,28 +37,28 @@ def send_email(subject, body):
     except Exception as e:
         print(f"❌ Nepodařilo se odeslat email: {e}")
 
-# --- Nastavení prohlížeče pro běh na serveru ---
+# --- Nastavení prohlížeče pro běh na serveru (zůstává stejné) ---
 options = Options()
 options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--window-size=1920,1080")
 
-# Změna 2: Smazali jsme řádky:
-# service = Service(ChromeDriverManager().install())
-# A upravili jsme následující řádek:
 driver = webdriver.Chrome(options=options)
 wait = WebDriverWait(driver, 30)
 
 print("✅ Proces spuštěn, prohlížeč nastaven.")
 
 try:
-    # --- Přihlášení pomocí cookies (zůstává stejné) ---
+    # --- Přihlášení pomocí cookies ---
     print("⏳ Načítám cookies pro přihlášení...")
-    # ... (zbytek skriptu je naprosto stejný)
     driver.get("https://google.com")
     cookies = json.loads(COOKIES_JSON_STRING)
     for cookie in cookies:
+        # ZMĚNA ZDE: Přidali jsme kontrolu pro 'sameSite' atribut
+        # Pokud má cookie neplatnou hodnotu 'sameSite', jednoduše tento atribut odstraníme.
+        if 'sameSite' in cookie and cookie['sameSite'] not in ["Strict", "Lax", "None"]:
+            del cookie['sameSite']
         driver.add_cookie(cookie)
     
     # --- Spuštění Colab notebooku ---
@@ -76,13 +73,12 @@ try:
     wait.until(EC.element_to_be_clickable((By.XPATH, run_all_xpath))).click()
     print("✅ Příkaz 'Spustit vše' byl úspěšně proveden.")
     
-    # Zde nastav, jak dlouho má skript čekat, než se scraper v Colabu dokončí
     print("⏳ Čekám 30 minut na dokončení scraperu...")
     time.sleep(1800)
     print("✅ Čekání dokončeno, skript pravděpodobně doběhl úspěšně.")
 
 except Exception as e:
-    # --- Odeslání chybového hlášení (zůstává stejné) ---
+    # --- Odeslání chybového hlášení ---
     print(f"❌ Vyskytla se kritická chyba: {e}")
     error_details = traceback.format_exc()
     error_body = f"Při běhu skriptu pro Colab notebook nastala chyba.\n\nURL: {COLAB_URL}\n\nDetaily chyby:\n{error_details}"
@@ -90,6 +86,6 @@ except Exception as e:
     raise e
 
 finally:
-    # --- Ukončení (zůstává stejné) ---
+    # --- Ukončení ---
     driver.quit()
     print("🏁 Proces dokončen.")
